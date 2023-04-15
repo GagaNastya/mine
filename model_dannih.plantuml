@@ -1,0 +1,10 @@
+@startuml
+actor "Организатор конференции" as Organizer
+actor "Докладчик" as Speaker
+actor "Рецензент" as Reviewer
+actor "Слушатель конференции" as Listener
+participant "Система управления конференцией" as ConferenceManagementSystem
+
+Organizer --> ConferenceManagementSystem : Использует систему для управления конференцией
+
+@enduml
