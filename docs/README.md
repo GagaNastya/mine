@@ -362,41 +362,59 @@ System_Boundary(conference, "helloconf.mts.ru") {
     Person(organizer, "Организатор", "Организатор конференции")
 
     package "Работа с докладчиками" {
-        Container(workflow, "Работа с докладчиками", "Включает функциональность для подачи докладов, обратной связи с докладчиками и управления докладами")
-        Container(reviewer, "Рецензирование докладов", "Включает функциональность для оценки докладов, принятия решений и выбора докладов для конференции")
+        Container(workflow, "Работа с докладчиками", "java", "Включает функциональность для подачи докладов, обратной связи с докладчиками и управления докладами")
+        Container(workflowAPI, "REST API", "java", "Функции API для работы с докладчиками")
+        Container(reviewer, "Рецензирование докладов", "java", "Включает функциональность для оценки докладов, принятия решений и выбора докладов для конференции")
+        Container(reviewerAPI, "REST API", "java", "Функции API для рецензирования докладов")
         Person(recenzent, "Рецензенты", "Рецензирование докладов, общение с Докладчиками")
         reviewer <--> workflow: Синхронизация
         sponsor --> conference: Финансирование
-        organizer -> conference: Управление
-        recenzent --> reviewer: Рецензирование
     }
 
     package "Работа с расписанием" {
-        Container(schedule, "Работа с расписанием", "Включает функциональность для планирования докладов, управления временем и составлении программы конференции") 
+        Container(schedule, "Работа с расписанием", "java", "Включает функциональность для планирования докладов, управления временем и составлении программы конференции") 
     }
 
     package "Проведение конференции" {
-        Container(broadcast, "Трансляция конференции", "Включает функциональность для записи и трансляции докладов в режиме реального времени") 
-        Container(feedback, "Обратная связь", "Включает функциональность для оценки и комментирования докладов") 
+        Container(feedbackAPI, "REST API", "java", "Функции API для сбора обратной связи")
+        Container(broadcast, "Трансляция конференции","java","Включает функциональность для записи и трансляции докладов в режиме реального времени") 
+        Container(feedback, "Обратная связь", "java", "Включает функциональность для оценки и комментирования докладов") 
         Person(technical_staff, "Технический персонал", "Технический персонал для проведения конференции")
+        Rel(technical_staff, broadcast, "Подготовка")
+        Rel_R(feedback,feedbackAPI,"POST \npostfeedback", "JSON")
+        Rel_R(feedback,feedbackAPI,"GET \ngetfeedback", "JSON")
     }
 
+    ContainerDb(db, "База данных рецензий, докладов, обратной связи", "Postgresql",$sprite="postgresql")
 
-    ContainerDb(db, "База данных рецензий и докладов", "Postgresql",$sprite="postgresql")
+    Rel_R(user, feedback, "Использование", "HTTPS")
+    Rel_L(customer, feedback, "Использование", "HTTPS")
+    Rel(organizer, feedback, "Просмотр", "HTTPS")
+    Rel_R(user, broadcast, "Выступление и просмотр", "HTTPS")
+    schedule <--> broadcast: Синхронизация
+    broadcast <--> feedback: Синхронизация
+    Rel_L(customer, broadcast, "Просмотр", "HTTPS")
 
+    Rel(recenzent, reviewer, "Запрос списка неоцененных докладов", "HTTPS")
+    Rel(reviewer, reviewerAPI, "GET \nunreviewedTalks", "JSON")
+    Rel(reviewerAPI, db,"Чтение", "JDBC")
 
-    user -> workflow: Использование
-    user --> feedback: Использование
-    user -> broadcast: Выступление
-    db -> schedule: Подача докладов
-    schedule --> broadcast: Синхронизация
-    broadcast --> feedback: Синхронизация
-    workflow --> db: Обработка
-    customer -> broadcast: Просмотр
+    Rel(organizer, schedule, "Запрос информации о новых поданных докладах", "HTTPS")
+    Rel_R(schedule, workflowAPI, "GET \ninfonewtalks", "JSON")
+    Rel_R(workflowAPI, db,"Чтение/Запись", "JDBC")
+
+    Rel_L(user, workflow, "Создание доклада", "HTTPS")
+    Rel(workflow, workflowAPI, "POST \ntalks", "JSON")
+
 }
 
 @enduml
 ```
+**Не смогла добавить взаимодействие так как это в любом опробованном мною случае ухудшало читаемость схемы:** 
+Rel(feedbackAPI, db, "Чтение/Запись", "JDBC")
+
+    
+    
 
 
 ### [Компонентная архитектура](components/components.md)
