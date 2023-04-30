@@ -271,10 +271,10 @@ fc --> UC3
 <!-- Записи о ключевых принятых архитектурных решениях (ADR) для реализации архитектурно-значимых требований.
 Подробнее: https://confluence.mts.ru/pages/viewpage.action?pageId=421162308
 -->
-- [ADR.001 Категория системы ACID база данных СA](adr/adr-template.md)
-- [ADR.002 Интеграционное взаимодейтсвие REST API](adr/adr-template.md)
+- [ADR.001 Категория системы ACID база данных СA](adr/ADR.001_systemcateg.mg)
+- [ADR.002 Интеграционное взаимодейтсвие REST API](adr/ADR.002_integration.md)
 
-### [Контекст решения]
+### Контекст решения
 ```plantuml
 @startuml C5_Elements
 title Контекстная диаграмма программной системы
