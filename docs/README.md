@@ -290,7 +290,6 @@ System_Boundary(conference, "helloconf.mts.ru"){
     Container(feedback, "Сбор обратной связи", "Включает функциональность для оценки и комментирования докладов") 
     Container(workflow, "Работа с докладчиками", "Включает функциональность для подачи докладов, обратной связи с докладчиками и управления докладами")
     
-
     organizer -> conference: Управление
     workflow -> reviewer: Подача докладов
     workflow -> schedule: Подача докладов
@@ -305,6 +304,100 @@ System_Boundary(conference, "helloconf.mts.ru"){
 }
 @enduml
 ```
+
+```plantuml
+@startuml C4_Elements
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(organizer, "Организатор", "Организатор конференции")
+Person(user, "Докладчик")
+Person(sponsor, "Спонсор", "Организация, финансирующая конференцию")
+
+System_Boundary(conference_management, "Управление конференцией"){
+Container(workflow, "Работа с докладчиками", "Включает функциональность для подачи докладов, обратной связи с докладчиками и управления докладами")
+Container(reviewer, "Рецензирование докладов", "Включает функциональность для оценки докладов, принятия решений и выбора докладов для конференции")
+Container(schedule, "Работа с расписанием", " Включает функциональность для планирования докладов, управления временем и составлении программы конференции")
+Person(recenzent, "Рецензенты", "Рецензирование докладов, общение с Докладчиками")
+reviewer <--> workflow: Синхронизация
+schedule <--> reviewer: Синхронизация
+sponsor --> conference_management: Финансирование
+organizer -> conference_management: Управление
+recenzent --> reviewer: Рецензирование
+}
+
+System_Boundary(conference_broadcast, "Трансляция конференции"){
+Container(broadcast, "Трансляция конференции", "Включает функциональность для записи и трансляции докладов в режиме реального времени")
+Person(technical_staff, "Технический персонал", "Технический персонал для проведения конференции")
+Person(customer, "Слушатель конференции")
+technical_staff --> broadcast: Подготовка
+customer -> broadcast: Просмотр
+}
+
+System_Boundary(conference_feedback, "Обратная связь"){
+Container(feedback, "Сбор обратной связи", "Включает функциональность для оценки и комментирования докладов")
+schedule --> broadcast: Синхронизация
+broadcast --> feedback: Синхронизация
+customer --> feedback: Использование
+user --> feedback: Использование
+organizer --> feedback: Использование
+}
+
+conference_management --> conference_broadcast: Передача расписания
+user -> workflow: Использование
+user -> broadcast: Выступление
+@enduml
+```
+
+```plantuml
+@startuml C4_Containers
+!define C4_CONTAINER_NO_COMPONENT true
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/v2.3.0/C4_Container.puml
+
+title Контейнерная диаграмма программной системы
+Person(customer, "Слушатель конференции")
+Person(user, "Докладчик")
+Person(sponsor, "Спонсор", "Организация, финансирующая конференцию")
+System_Boundary(conference, "helloconf.mts.ru") {
+
+    Person(organizer, "Организатор", "Организатор конференции")
+
+    package "Работа с докладчиками" {
+        Container(workflow, "Работа с докладчиками", "Включает функциональность для подачи докладов, обратной связи с докладчиками и управления докладами")
+        Container(reviewer, "Рецензирование докладов", "Включает функциональность для оценки докладов, принятия решений и выбора докладов для конференции")
+        Person(recenzent, "Рецензенты", "Рецензирование докладов, общение с Докладчиками")
+        reviewer <--> workflow: Синхронизация
+        sponsor --> conference: Финансирование
+        organizer -> conference: Управление
+        recenzent --> reviewer: Рецензирование
+    }
+
+    package "Работа с расписанием" {
+        Container(schedule, "Работа с расписанием", "Включает функциональность для планирования докладов, управления временем и составлении программы конференции") 
+    }
+
+    package "Проведение конференции" {
+        Container(broadcast, "Трансляция конференции", "Включает функциональность для записи и трансляции докладов в режиме реального времени") 
+        Container(feedback, "Обратная связь", "Включает функциональность для оценки и комментирования докладов") 
+        Person(technical_staff, "Технический персонал", "Технический персонал для проведения конференции")
+    }
+
+
+    ContainerDb(db, "База данных рецензий и докладов", "Postgresql",$sprite="postgresql")
+
+
+    user -> workflow: Использование
+    user --> feedback: Использование
+    user -> broadcast: Выступление
+    db -> schedule: Подача докладов
+    schedule --> broadcast: Синхронизация
+    broadcast --> feedback: Синхронизация
+    workflow --> db: Обработка
+    customer -> broadcast: Просмотр
+}
+
+@enduml
+```
+
 
 ### [Компонентная архитектура](components/components.md)
 
