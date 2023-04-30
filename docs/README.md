@@ -19,7 +19,8 @@
     - [Ограничения](#ограничения)
   - [Архитектура](#архитектура)
     - [Журнал архитектурных решений](#журнал-архитектурных-решений)
-    - [Контекст решения](#контекст-решения)
+    - [\[Контекст решения\]](#контекст-решения)
+    - [Контейнерная архитектура](#контейнерная-архитектура)
     - [Компонентная архитектура](#компонентная-архитектура)
     - [Реализация сценариев использования](#реализация-сценариев-использования)
     - [Программные интерфейсы](#программные-интерфейсы)
@@ -270,9 +271,10 @@ fc --> UC3
 <!-- Записи о ключевых принятых архитектурных решениях (ADR) для реализации архитектурно-значимых требований.
 Подробнее: https://confluence.mts.ru/pages/viewpage.action?pageId=421162308
 -->
-- [ADR.NNN Суть решения](adr/adr-template.md)
+- [ADR.001 Категория системы ACID база данных СA](adr/adr-template.md)
+- [ADR.002 Интеграционное взаимодейтсвие REST API](adr/adr-template.md)
 
-### [Контекст решения](context/context.md)
+### [Контекст решения]
 ```plantuml
 @startuml C5_Elements
 title Контекстная диаграмма программной системы
@@ -305,48 +307,7 @@ System_Boundary(conference, "helloconf.mts.ru"){
 @enduml
 ```
 
-```plantuml
-@startuml C4_Elements
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-
-Person(organizer, "Организатор", "Организатор конференции")
-Person(user, "Докладчик")
-Person(sponsor, "Спонсор", "Организация, финансирующая конференцию")
-
-System_Boundary(conference_management, "Управление конференцией"){
-Container(workflow, "Работа с докладчиками", "Включает функциональность для подачи докладов, обратной связи с докладчиками и управления докладами")
-Container(reviewer, "Рецензирование докладов", "Включает функциональность для оценки докладов, принятия решений и выбора докладов для конференции")
-Container(schedule, "Работа с расписанием", " Включает функциональность для планирования докладов, управления временем и составлении программы конференции")
-Person(recenzent, "Рецензенты", "Рецензирование докладов, общение с Докладчиками")
-reviewer <--> workflow: Синхронизация
-schedule <--> reviewer: Синхронизация
-sponsor --> conference_management: Финансирование
-organizer -> conference_management: Управление
-recenzent --> reviewer: Рецензирование
-}
-
-System_Boundary(conference_broadcast, "Трансляция конференции"){
-Container(broadcast, "Трансляция конференции", "Включает функциональность для записи и трансляции докладов в режиме реального времени")
-Person(technical_staff, "Технический персонал", "Технический персонал для проведения конференции")
-Person(customer, "Слушатель конференции")
-technical_staff --> broadcast: Подготовка
-customer -> broadcast: Просмотр
-}
-
-System_Boundary(conference_feedback, "Обратная связь"){
-Container(feedback, "Сбор обратной связи", "Включает функциональность для оценки и комментирования докладов")
-schedule --> broadcast: Синхронизация
-broadcast --> feedback: Синхронизация
-customer --> feedback: Использование
-user --> feedback: Использование
-organizer --> feedback: Использование
-}
-
-conference_management --> conference_broadcast: Передача расписания
-user -> workflow: Использование
-user -> broadcast: Выступление
-@enduml
-```
+### Контейнерная архитектура
 
 ```plantuml
 @startuml C4_Containers
