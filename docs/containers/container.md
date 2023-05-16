@@ -21,10 +21,14 @@ System_Boundary(conference, "helloconf.mts.ru") {
         Person(recenzent, "Рецензенты", "Рецензирование докладов, общение с Докладчиками")
         reviewer <--> workflow: Синхронизация
         sponsor --> conference: Финансирование
+        ContainerDb(db, "База данных рецензий, докладов, обратной связи", "Postgresql",$sprite="postgresql")
     }
 
     package "Работа с расписанием" {
-        Container(schedule, "Работа с расписанием", "java", "Включает функциональность для планирования докладов, управления временем и составлении программы конференции") 
+        Container(schedule, "Планирование докладов", "java") 
+        Container(schedule2, "Составление программы конференции", "java") 
+        BiRel_R(schedule, schedule2, "Cинхронизация")
+
     }
 
     package "Проведение конференции" {
@@ -37,7 +41,7 @@ System_Boundary(conference, "helloconf.mts.ru") {
         Rel_R(feedback,feedbackAPI,"GET \ngetfeedback", "JSON")
     }
 
-    ContainerDb(db, "База данных рецензий, докладов, обратной связи", "Postgresql",$sprite="postgresql")
+
 
     Rel_R(user, feedback, "Использование", "HTTPS")
     Rel_L(customer, feedback, "Использование", "HTTPS")
@@ -52,16 +56,17 @@ System_Boundary(conference, "helloconf.mts.ru") {
     Rel(reviewerAPI, db,"Чтение", "JDBC")
 
     Rel(organizer, schedule, "Запрос информации о новых поданных докладах", "HTTPS")
+    Rel(organizer, schedule2, "Использование", "HTTPS")
     Rel_R(schedule, workflowAPI, "GET \ninfonewtalks", "JSON")
     Rel_R(workflowAPI, db,"Чтение/Запись", "JDBC")
 
     Rel_L(user, workflow, "Создание доклада", "HTTPS")
     Rel(workflow, workflowAPI, "POST \ntalks", "JSON")
+    Rel_U(feedbackAPI, db, "Чтение/Запись", "JDBC")
+
 
 }
 
 @enduml
 ```
 
-**Не смогла добавить взаимодействие так как это в любом опробованном мною случае ухудшало читаемость схемы:** 
-Rel(feedbackAPI, db, "Чтение/Запись", "JDBC")
