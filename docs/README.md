@@ -287,27 +287,20 @@ Person(user, "Докладчик")
 Person(sponsor, "Спонсор", "Организация, финансирующая конференцию")
 System_Boundary(conference, "helloconf.mts.ru"){
     Person(organizer, "Организатор", "Организатор конференции") 
-    Container(workflow, "Работа с докладчиками", "Включает функциональность для подачи докладов, обратной связи с докладчиками и управления докладами")
-    Container(reviewer, "Рецензирование докладов", "Включает функциональность для оценки докладов, принятия решений и выбора докладов для конференции") 
+    Container(workflow, "Работа с докладчиками", "Включает функциональность для подачи докладов, обратной связи с докладчиками и управления докладами, рецензирования докладов")
     Container(schedule, "Работа с расписанием", " Включает функциональность для планирования докладов, управления временем и составлении программы конференции") 
     Person(technical_staff, "Технический персонал", "Технический персонал для проведения конференции")
-    Container(broadcast, "Трансляция конференции", "Включает функциональность для записи и трансляции докладов в режиме реального времени") 
-    Container(feedback, "Сбор обратной связи", "Включает функциональность для оценки и комментирования докладов") 
+    Container(feedback, "Проведение конференции", "Включает функциональность для оценки и комментирования докладов, а такжедля записи и трансляции докладов в режиме реального времени ") 
     Person(recenzent, "Рецензенты", "Рецензирование докладов, общение с Докладчиками")
     
     Rel(organizer, schedule, "Использование")
     BiRel_L(workflow, user, "Взаимодействие")
-    Rel_L(workflow, reviewer, "Подача докладов")
     workflow-> schedule: Подача докладов
-    schedule --> broadcast: Синхронизация
-    broadcast --> feedback: Синхронизация
-    Rel_U(technical_staff,broadcast, "Подготовка")
-    technical_staff -> conference: Техническое обеспечение 
-    customer -> broadcast: Просмотр
-    user -> broadcast: Выступление
-    Rel_U(sponsor,conference, "Финансирование")
-    Rel_D(recenzent,reviewer, "Использование")
-    Rel(customer, feedback, "Использование")
+    BiRel(schedule, feedback, "Синхронизация")
+    Rel_U(technical_staff,feedback, "Техническое обеспечение") 
+    Rel(sponsor,conference, "Финансирование")
+    Rel_D(recenzent,workflow, "Использование")
+    Rel_L(customer, feedback, "Использование")
     Rel(user, feedback, "Использование")
     Rel(organizer, feedback, "Использование")
 
@@ -338,10 +331,14 @@ System_Boundary(conference, "helloconf.mts.ru") {
         Person(recenzent, "Рецензенты", "Рецензирование докладов, общение с Докладчиками")
         reviewer <--> workflow: Синхронизация
         sponsor --> conference: Финансирование
+        ContainerDb(db, "База данных рецензий, докладов, обратной связи", "Postgresql",$sprite="postgresql")
     }
 
     package "Работа с расписанием" {
-        Container(schedule, "Работа с расписанием", "java", "Включает функциональность для планирования докладов, управления временем и составлении программы конференции") 
+        Container(schedule, "Планирование докладов", "java") 
+        Container(schedule2, "Составление программы конференции", "java") 
+        BiRel_R(schedule, schedule2, "Cинхронизация")
+
     }
 
     package "Проведение конференции" {
@@ -354,7 +351,7 @@ System_Boundary(conference, "helloconf.mts.ru") {
         Rel_R(feedback,feedbackAPI,"GET \ngetfeedback", "JSON")
     }
 
-    ContainerDb(db, "База данных рецензий, докладов, обратной связи", "Postgresql",$sprite="postgresql")
+
 
     Rel_R(user, feedback, "Использование", "HTTPS")
     Rel_L(customer, feedback, "Использование", "HTTPS")
@@ -369,22 +366,20 @@ System_Boundary(conference, "helloconf.mts.ru") {
     Rel(reviewerAPI, db,"Чтение", "JDBC")
 
     Rel(organizer, schedule, "Запрос информации о новых поданных докладах", "HTTPS")
+    Rel(organizer, schedule2, "Использование", "HTTPS")
     Rel_R(schedule, workflowAPI, "GET \ninfonewtalks", "JSON")
     Rel_R(workflowAPI, db,"Чтение/Запись", "JDBC")
 
     Rel_L(user, workflow, "Создание доклада", "HTTPS")
     Rel(workflow, workflowAPI, "POST \ntalks", "JSON")
+    Rel_U(feedbackAPI, db, "Чтение/Запись", "JDBC")
+
 
 }
 
 @enduml
-```
-**Не смогла добавить взаимодействие так как это в любом опробованном мною случае ухудшало читаемость схемы:** 
-Rel(feedbackAPI, db, "Чтение/Запись", "JDBC")
-
+``` 
     
-    
-
 
 ### [Компонентная архитектура](components/components.md)
 
