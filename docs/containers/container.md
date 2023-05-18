@@ -73,9 +73,3 @@ System_Boundary(conference, "helloconf.mts.ru") {
 
 @enduml
 ```
-
-    Rel_U(feedbackAPI, db, "Чтение/Запись", "JDBC")
-
-
-    broadcast <--> feedback: Синхронизация
-    schedule <--> broadcast: Синхронизация
