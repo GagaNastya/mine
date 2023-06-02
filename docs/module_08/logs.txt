@@ -454,7 +454,7 @@ service_author        | INFO:     Application startup complete.
 service_main          | WARNING:root:Circuit "get_author" is "closed", failures: 3
 service_main          | WARNING:root:
 
-##Включение serviceAuthor и вызов presentationsAndAuthor
+##Вызов presentationsAndAuthor
 service_presentation  | INFO:     172.18.0.4:34694 - "GET /presentations/First%20Presentation HTTP/1.1" 200 OK
 service_author        | <class 'list'>
 service_author        | INFO:     172.18.0.4:47796 - "GET /authors/1 HTTP/1.1" 200 OK
